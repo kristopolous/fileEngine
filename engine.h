@@ -42,7 +42,7 @@ class CycleWriter {
 		int m_rolloverMB; // = 0
 
 		// Time in seconds between captures
-		int m_duration; // = 0
+		int m_durationSeconds; // = 0
 
 		// Total number of allowed captures
 		int m_fileLimit; // = 0
@@ -59,7 +59,7 @@ class CycleWriter {
 		bool setup(
 			string baseFileName,
 			int rolloverMB,
-			int duration,
+			int durationSeconds,
 			int fileLimit,
 			bool doCycle
 		);

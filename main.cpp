@@ -17,7 +17,7 @@ int main()
 
 /*
 	cyc->m_baseFileName = "file%G%r";
-	cyc->m_duration = 1;
+	cyc->m_durationSeconds = 1;
 	cyc->m_rolloverMB = 1;
 	cyc->m_fileLimit = 12;
 	cyc->m_doCycle = false;

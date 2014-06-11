@@ -6,7 +6,7 @@ CycleWriter::CycleWriter() :
 		m_baseFileName(""),
 		m_byteCount(0),
 		m_doCycle(false),
-		m_duration(0),
+		m_durationSeconds(0),
 		m_fileCountTotal(0),
 		m_fileIndex(0),
 		m_fileLimit(0),
@@ -25,7 +25,7 @@ CycleWriter::CycleWriter() :
 bool CycleWriter::setup(
 	string baseFileName,
 	int rolloverMB,
-	int duration,
+	int durationSeconds,
 	int fileLimit,
 	bool doCycle
 ) 
@@ -36,7 +36,7 @@ bool CycleWriter::setup(
 	}
 	m_baseFileName = baseFileName;
 	m_rolloverMB = rolloverMB;
-	m_duration = duration;
+	m_durationSeconds = durationSeconds;
 	m_fileLimit = fileLimit;
 	m_doCycle = doCycle;
 
@@ -101,7 +101,7 @@ CycleWriter::Conclusion CycleWriter::nextFile()
 	// our file is base + number
 	// when applicable.
 	
-	if (m_duration > 0) 
+	if (m_durationSeconds > 0) 
 	{
 		// This means that we need to run strftime
 		// over the base name.	We'll just allocate
@@ -226,7 +226,7 @@ CycleWriter::Conclusion CycleWriter::consider(long byteCount)
 
 	m_byteCount += byteCount;
 
-	if (m_duration > 0) 
+	if (m_durationSeconds > 0) 
 	{
 		// If this is our first consideration, we set the timer up.
 		if(m_lastTime == 0) 
@@ -236,7 +236,7 @@ CycleWriter::Conclusion CycleWriter::consider(long byteCount)
 
 		// If the current time is more than the last,
 		// this is beyond our permissable limit
-		if(time(0) - m_lastTime >= m_duration) 
+		if(time(0) - m_lastTime >= m_durationSeconds) 
 		{
 			// reset the last time to now.
 			m_lastTime = time(0);
