@@ -67,6 +67,15 @@ class CycleWriter {
 		CycleWriter();
 		~CycleWriter() {};
 		
+		// Consider byteCount bytes at the current time
+		// and tell us whether a new file should be written,
+		// we should use the same file, or we should quit.
+		//
+		// If we should use a new file, or should quit,
+		// then m_lastReason will tell us why consider
+		// thought so, and in the case of a new file,
+		// getCurrentFileName() will tell us the new
+		// capture file name to use.
 		CycleWriter::Conclusion consider(long byteCount);
 
 		string getCurrentFileName();
