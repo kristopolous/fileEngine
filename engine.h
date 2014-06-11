@@ -26,15 +26,15 @@ class CycleWriter {
 			DOQUIT
 		};
 
-    // These are the variables that may be set
-    // to specify how the engine will work.
-    // 
-    // They are public and you can set them
-    // directly, or use the handy setup
-    // function below to force yourself
-    // to set them all
-    
-    // The base file name to write to
+		// These are the variables that may be set
+		// to specify how the engine will work.
+		// 
+		// They are public and you can set them
+		// directly, or use the handy setup
+		// function below to force yourself
+		// to set them all
+		
+		// The base file name to write to
 		string m_baseFileName;
 
 		// number of bytes before rolling over
@@ -49,19 +49,19 @@ class CycleWriter {
 		// whether to cycle the names at all
 		bool m_doCycle;
 	
-    // The setup allows you to set everything
-    // in one go so you don't miss anything.
-    //
-    // Also, if the engine has already started 
-    // (via a call to consider), then this will
-    // be locked down and return false.
-    bool setup(
-      string baseFileName,
-      int rolloverMB,
-      int duration,
-      int fileLimit,
-      bool doCycle
-    );
+		// The setup allows you to set everything
+		// in one go so you don't miss anything.
+		//
+		// Also, if the engine has already started 
+		// (via a call to consider), then this will
+		// be locked down and return false.
+		bool setup(
+			string baseFileName,
+			int rolloverMB,
+			int duration,
+			int fileLimit,
+			bool doCycle
+		);
 
 		CycleWriter();
 		~CycleWriter() {};
@@ -70,8 +70,8 @@ class CycleWriter {
 
 		string getCurrentFileName();
 
-    // Last reason for a new file
-    string m_lastReason;
+		// Last reason for a new file
+		string m_lastReason;
 
 	private:
 		// This will create a new file if
@@ -86,9 +86,9 @@ class CycleWriter {
 		time_t m_lastTime;
 
 		// total number of files written
-    int m_fileCountTotal;
+		int m_fileCountTotal;
 
-    // Current index
+		// Current index
 		int m_fileIndex;
 
 		// The file pointer that things
@@ -105,10 +105,10 @@ class CycleWriter {
 		// was created (mostly for debugging)
 		string m_lastFileName;
 
-    // This is toggled to true the
-    // first time consider is run ...
-    // it will lock the setup() from 
-    // being further run
-    bool m_bFirstConsider;
+		// This is toggled to true the
+		// first time consider is run ...
+		// it will lock the setup() from 
+		// being further run
+		bool m_bFirstConsider;
 };
 
