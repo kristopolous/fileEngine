@@ -101,10 +101,6 @@ class CycleWriter {
 		// Current index
 		int m_fileIndex;
 
-		// The file pointer that things
-		// should be writing to
-		int m_pFile;
-
 		// This is the 0-left padded format
 		// for creating file names. Since
 		// we don't know what's what at first
