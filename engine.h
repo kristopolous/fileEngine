@@ -7,10 +7,9 @@
 using namespace std;
 
 class CycleWriter {
-	// values <= 0 mean don't use them.
 	public:
 		// The conclusion is what
-		// consider tells you to do
+		// consider() tells you to do
 		// after you tell it how many 
 		// more bytes to consider
 		enum Conclusion {
@@ -18,10 +17,10 @@ class CycleWriter {
 			SAMEFILE,
 
 			// Close the current file handle
-			// and use the one in getCurrentFileName
+			// and use the one in getCurrentFileName()
 			NEWFILE,
 
-			// Its the end of the capture,
+			// It's the end of the capture,
 			// close the file handle and exit.
 			DOQUIT
 		};
@@ -33,27 +32,29 @@ class CycleWriter {
 		// directly, or use the handy setup
 		// function below to force yourself
 		// to set them all
+    //
+	  // values <= 0 mean don't use them.
 		
 		// The base file name to write to
-		string m_baseFileName;
+		string m_baseFileName; // = ""
 
-		// number of bytes before rolling over
-		int m_rolloverMB;
+		// Number of bytes before rolling over
+		int m_rolloverMB; // = 0
 
-		// time in seconds between captures
-		int m_duration;
+		// Time in seconds between captures
+		int m_duration; // = 0
 
-		// total number of allowed captures
-		int m_fileLimit;
+		// Total number of allowed captures
+		int m_fileLimit; // = 0
 
-		// whether to cycle the names at all
-		bool m_doCycle;
+		// Whether to cycle the names at all
+		bool m_doCycle; // = false
 	
 		// The setup allows you to set everything
 		// in one go so you don't miss anything.
 		//
 		// Also, if the engine has already started 
-		// (via a call to consider), then this will
+		// (via a call to consider()), then this will
 		// be locked down and return false.
 		bool setup(
 			string baseFileName,
@@ -74,18 +75,18 @@ class CycleWriter {
 		string m_lastReason;
 
 	private:
-		// This will create a new file if
+		// This will yield a new file if
 		// needed or conclude that we need 
 		// to exit.
 		CycleWriter::Conclusion nextFile();
 
-		// total number of bytes written
+		// Total number of bytes written
 		int m_byteCount;
 
-		// last time of a capture
+		// Last time of a capture
 		time_t m_lastTime;
 
-		// total number of files written
+		// Total number of files written
 		int m_fileCountTotal;
 
 		// Current index
