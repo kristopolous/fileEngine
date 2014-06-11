@@ -32,8 +32,8 @@ class CycleWriter {
 		// directly, or use the handy setup
 		// function below to force yourself
 		// to set them all
-    //
-	  // values <= 0 mean don't use them.
+		//
+		// values <= 0 mean don't use them.
 		
 		// The base file name to write to
 		string m_baseFileName; // = ""

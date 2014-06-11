@@ -2,7 +2,8 @@
 #include<stdio.h>
 #include<unistd.h>
 
-int main(){
+int main()
+{
 	string fname;
 	CycleWriter *cyc = new CycleWriter();
 
@@ -23,20 +24,24 @@ int main(){
 */
 
 	CycleWriter::Conclusion ret;
-	while(1) {
+	while(1) 
+  {
 		ret = cyc->consider(10000);
 		
-		if(ret == CycleWriter::SAMEFILE) {
+		if(ret == CycleWriter::SAMEFILE) 
+    {
 			printf(".");
 		}
-		if(ret == CycleWriter::NEWFILE) {
+		if(ret == CycleWriter::NEWFILE) 
+    {
 			fname = cyc->getCurrentFileName();
 			printf("\n[%s] New File: %s\n", 
 				cyc->m_lastReason.c_str(),
 				fname.c_str()
 			);
 		}
-		if(ret == CycleWriter::DOQUIT) {
+		if(ret == CycleWriter::DOQUIT) 
+    {
 			printf("\n[%s] Quiting\n", 
 				cyc->m_lastReason.c_str()
 			);
