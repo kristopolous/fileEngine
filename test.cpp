@@ -1,4 +1,4 @@
-#include"cycle_writer.h"
+#include"cyclewriter.h"
 #include<stdio.h>
 #include<unistd.h>
 
@@ -36,7 +36,7 @@ int main(int argc, char**argv)
 	int rounds = 1;
 
 	bool bQuit = false;
-	int ret_files = 1;
+	int ret_files = 0;
 	int rounds_between_recommend = 0;
 
 	printf("{\n");

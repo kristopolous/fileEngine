@@ -1,4 +1,4 @@
-#include "cycle_writer.h"
+#include "cyclewriter.h"
 
 cycle_writer::cycle_writer() :
 	m_base_file_name(""),
@@ -67,7 +67,7 @@ cycle_writer::conclusion cycle_writer::consider(long byte_count)
 		//
 		if(time(0) - m_last_time >= m_duration_seconds) 
 		{
-			// reset the last time to now.
+			// Reset the last time to now.
 			m_last_time = time(0);
 
 			// Reset our file numbering back to 0.
@@ -94,7 +94,7 @@ cycle_writer::conclusion cycle_writer::consider(long byte_count)
 		// If we've rolled over the amount of bytes we
 		// are supposed to write to a specific file then
 		//
-		if(m_byte_count > m_rollover_mb * 1024 * 1024) 
+		if(m_byte_count > m_rollover_mb * 1000 * 1000) 
 		{
 			// Reset the counter back to the amount
 			// we considered to write this time
