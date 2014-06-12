@@ -1,6 +1,4 @@
-#include "engine.h"
-
-using namespace std;
+#include"cycle_writer.h"
 
 cycle_writer::cycle_writer() :
 	m_base_file_name(""),
@@ -18,7 +16,7 @@ cycle_writer::cycle_writer() :
 	// null terminate the first
 	// character of the limit format
 	// to say that we want things to
-	// be created when we consider the 
+	// be created when we consider() the 
 	// next file.
 	//
 	m_limit_format[0] = 0;
@@ -37,6 +35,85 @@ bool cycle_writer::setup(string base_file_name, int rollover_mb, int duration_se
 	m_do_cycle = do_cycle;
 
 	return true;
+}
+
+cycle_writer::conclusion cycle_writer::consider(long byte_count) 
+{
+	//
+	// This is for any routine which restricts 
+	// execution after an initial consider()
+	//
+	m_first_consider = true;
+
+	m_byte_count += byte_count;
+
+	if(m_duration_seconds > 0) 
+	{
+		//
+		// If this is our first consideration, 
+		// we set the timer up.
+		// 
+		if(m_last_time == 0) 
+		{
+			m_last_time = time(0);
+		}
+
+		//
+		// If the current time is more than the last,
+		// this is beyond our permissable limit
+		//
+		if(time(0) - m_last_time >= m_duration_seconds) 
+		{
+			// reset the last time to now.
+			m_last_time = time(0);
+
+			// reset our file numbering back to 0.
+			//
+			// NOTE: tcpdump doesn't do this necessarily and
+			//   it's pretty confusing.
+			m_file_index = 0;
+
+			// Also bring back our byte_count since this
+			// will be a new file to consider.
+			m_byte_count = byte_count;
+
+			// Set the last reason
+			m_last_reason = "Maximum Time Reached";
+
+			// This will be the basis for the next file we create.
+			return next_file();
+		}
+	}
+
+	if(m_rollover_mb > 0) 
+	{
+		//
+		// If we've rolled over the amount of bytes we
+		// are supposed to write to a specific file then
+		//
+		if(m_byte_count > m_rollover_mb * 1024 * 1024) 
+		{
+			// Reset the counter back to the amount
+			// we considered to write this time
+			m_byte_count = byte_count;
+
+			// Set the last reason
+			m_last_reason = "Maximum File Size Reached";
+
+			//
+			// Increment our naming convention and 
+			// return our advice.
+			//
+			return next_file();
+		}
+	}
+
+	// 
+	// If we got here, this means that none 
+	// of our limits were hit, so we 
+	// recommend using the same file.
+	//
+	return SAMEFILE;
 }
 
 string cycle_writer::get_current_file_name() 
@@ -78,8 +155,10 @@ cycle_writer::conclusion cycle_writer::next_file()
 			return DOQUIT;
 		}
 
+		//
 		// Otherwise, we see if our current index exceeds
 		// our limit
+		// 
 		if(m_file_index >= m_file_limit) 
 		{
 			//
@@ -174,8 +253,10 @@ cycle_writer::conclusion cycle_writer::next_file()
 				our_file_limit /= 10;
 			}
 
+			//
 			// Now we can construct our format which will
 			// actually be put inside another sprintf later on
+			//
 			snprintf(
 				m_limit_format,
 
@@ -215,79 +296,9 @@ cycle_writer::conclusion cycle_writer::next_file()
 	// Increment the total number of files
 	m_file_count_total++;
 
-	// And the current index.
+	// Increment the current index
 	m_file_index++;
 
-	// We've recommended a new file.
+	// Return that we've recommended a new file.
 	return NEWFILE;
-}
-
-cycle_writer::conclusion cycle_writer::consider(long byte_count) 
-{
-	//
-	// This is for any routine which restricts 
-	// execution after an initial consider()
-	//
-	m_first_consider = true;
-
-	m_byte_count += byte_count;
-
-	if(m_duration_seconds > 0) 
-	{
-		//
-		// If this is our first consideration, 
-		// we set the timer up.
-		// 
-		if(m_last_time == 0) 
-		{
-			m_last_time = time(0);
-		}
-
-		//
-		// If the current time is more than the last,
-		// this is beyond our permissable limit
-		//
-		if(time(0) - m_last_time >= m_duration_seconds) 
-		{
-			// reset the last time to now.
-			m_last_time = time(0);
-
-			// reset our file numbering back to 0.
-			//
-			// NOTE: tcpdump doesn't do this necessarily and
-			//   it's pretty confusing.
-			m_file_index = 0;
-
-			// Also bring back our byte_count since this
-			// will be a new file to consider.
-			m_byte_count = byte_count;
-
-			// Set the last reason
-			m_last_reason = "Maximum Time Reached";
-
-			// This will be the basis for the next file we create.
-			return next_file();
-		}
-	}
-
-	if(m_rollover_mb > 0) 
-	{
-		// If we've rolled over the amount of bytes we
-		// are supposed to write to a specific file then
-		if(m_byte_count > m_rollover_mb * 1024 * 1024) 
-		{
-			// we reset the counter back to the amount
-			// we considered to write this time
-			m_byte_count = byte_count;
-
-			// Set the last reason
-			m_last_reason = "Maximum File Size Reached";
-
-			// and return our next file pointer.
-			return next_file();
-		}
-	}
-
-	// None of our limits were hit, so we recommend using the same file.
-	return SAMEFILE;
 }
