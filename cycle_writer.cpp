@@ -1,4 +1,4 @@
-#include"cycle_writer.h"
+#include "cycle_writer.h"
 
 cycle_writer::cycle_writer() :
 	m_base_file_name(""),
@@ -37,6 +37,15 @@ bool cycle_writer::setup(string base_file_name, int rollover_mb, int duration_se
 	return true;
 }
 
+// 
+// consider a certain number of bytes given the parameters
+// passed in through setup.  Consider will recommend one 
+// of the following:
+//
+//  * SAMEFILE - use the same file
+//  * NEWFILE - use a new file (inquiry with get_current_file_name())
+//  * DOQUI - end the capture.
+//
 cycle_writer::conclusion cycle_writer::consider(long byte_count) 
 {
 	//
@@ -67,7 +76,7 @@ cycle_writer::conclusion cycle_writer::consider(long byte_count)
 			// reset the last time to now.
 			m_last_time = time(0);
 
-			// reset our file numbering back to 0.
+			// Reset our file numbering back to 0.
 			//
 			// NOTE: tcpdump doesn't do this necessarily and
 			//   it's pretty confusing.
@@ -80,7 +89,7 @@ cycle_writer::conclusion cycle_writer::consider(long byte_count)
 			// Set the last reason
 			m_last_reason = "Maximum Time Reached";
 
-			// This will be the basis for the next file we create.
+			// Create a new file name and recommend it.
 			return next_file();
 		}
 	}
@@ -116,6 +125,10 @@ cycle_writer::conclusion cycle_writer::consider(long byte_count)
 	return SAMEFILE;
 }
 
+// 
+// get_current_file_name - returns the name of the
+// currently recommended file given the input parameters
+//
 string cycle_writer::get_current_file_name() 
 {
 	return m_last_file_name;
@@ -123,11 +136,12 @@ string cycle_writer::get_current_file_name()
 
 //
 // next_file doesn't return the file pointer
-// instead it possibly assigns a new value to
-// pFile.	This means that the consider()
-// can run through both possible logic blocks
-// in one go.	This isn't needed now, but it's
-// a conscious forward-design decision.
+// instead it returns advice on whether a new
+// file should be used or not.
+//
+// If it advices a new file, then the new file
+// name advised can be found in the
+// get_current_file_name() routine.
 //
 cycle_writer::conclusion cycle_writer::next_file() 
 {
@@ -138,17 +152,17 @@ cycle_writer::conclusion cycle_writer::next_file()
 	if (m_file_limit > 0) 
 	{
 		//
-		// If We are not cycling and the total number
-		// of files written to disk exceeds the maximum
-		// number that we are supposed to write
+		// If we are not cycling and the total number
+		// of files recommended exceeds the maximum
+		// number that we've been told to consider
 		//
 		if(!m_do_cycle && m_file_count_total >= m_file_limit) 
 		{
 			//
-			// We've reached our capture limit
-			// and have been instructed not to
-			// cycle in a ring, so we return a 
-			// DOQUIT signaling the end of the capture.
+			// We've reached our limit and have 
+			// been instructed not to cycle in a ring, 
+			// so we recommend a DOQUIT signaling the 
+			// end of the capture.
 			//
 			m_last_reason = "Maximum Number of Capture Files Written";
 
@@ -162,8 +176,8 @@ cycle_writer::conclusion cycle_writer::next_file()
 		if(m_file_index >= m_file_limit) 
 		{
 			//
-			// in which case we reset the index back to zero
-			// the file_index will by definition always be equal
+			// If so, we reset the index back to zero. The 
+			// file_index will by definition always be equal
 			// to or less then the file_count_total so we don't
 			// need to check for the cycle here because it will
 			// be caught above and return out of the function.
@@ -181,7 +195,7 @@ cycle_writer::conclusion cycle_writer::next_file()
 	// can trust that the value we have at
 	// this point is valid.
 	//
-	// our file is base + number
+	// Our file name is base + number
 	// when applicable.
 	//	
 	if(m_duration_seconds > 0) 
@@ -195,14 +209,14 @@ cycle_writer::conclusion cycle_writer::next_file()
 		// outside the scope of this comment block 
 		// ... really.
 		// 
-		const size_t our_sz = 400;
-		size_t their_sz;
-		char file_name[our_sz];
-		const struct tm*our_time = localtime(&m_last_time);
+		const size_t our_size = 400;
+		size_t their_size;
+		char file_name[our_size];
+		const struct tm *our_time = localtime(&m_last_time);
 
-		their_sz = strftime(file_name, our_sz, m_base_file_name.c_str(), our_time);
+		their_size = strftime(file_name, our_size, m_base_file_name.c_str(), our_time);
 
-		if(their_sz == 0) 
+		if(their_size == 0) 
 		{
 			// TODO: we failed ...
 		}
@@ -213,8 +227,8 @@ cycle_writer::conclusion cycle_writer::next_file()
 	else 
 	{
 		//
-		// we aren't using the duration flag
-		// so we don't have to run the stftime
+		// This means we aren't using the duration 
+		// flag so we don't have to run the stftime
 		// function ... our job is really easy!
 		// 
 		m_last_file_name = m_base_file_name; 
@@ -231,20 +245,26 @@ cycle_writer::conclusion cycle_writer::next_file()
 	if(m_file_limit > 0) 
 	{
 		//
-		// We haven't created our format for
-		// the file numbering yet, so we do it now.
+		// If the first character value is null (explicitly set 
+		// above in the constructor), this means we haven't created 
+		// our format for the file numbering yet, so we do it now.
 		//
 		if(m_limit_format[0] == 0) 
 		{
 			// The maximum numbr of decimal digits we need.
 			int digit_count = 0;
 
-			// a temporary copy of the file limit for
+			// A temporary copy of the file limit for
 			// our exploitation and fun.
 			int our_file_limit = m_file_limit;
 
 			//
-			// Just divide by 10 until we get zero.
+			// In order to determine how many digits we 
+			// need to express up to our file_limit 
+			//
+			// we just continuually divide by 10 until 
+			// we get zero.
+			//
 			// It's really not bad.
 			//
 			while(our_file_limit > 0) 
@@ -255,20 +275,33 @@ cycle_writer::conclusion cycle_writer::next_file()
 
 			//
 			// Now we can construct our format which will
-			// actually be put inside another sprintf later on
+			// actually be put inside another snprintf() later on
 			//
 			snprintf(
+				// The format we are trying to derive
 				m_limit_format,
-
 				sizeof(m_limit_format),
 
 				//
-				// double % => one percent
-				// so it's really
-				// %% 0(%d) d
-				// Which will yield something like
+				// Read the string below like this:
 				//
+				// %% 0(%d) d
+				//     ^^^^
+				//     '- This is the only part that
+				//        this snprintf cares about.
+				//
+				// A value of "5" will yield the following:
+				//
+				//    __
+				// %%0%dd
+				//    |/
+				// __ v
+				// %%05d
+				// |/
+				// v
 				// %05d
+				//
+				// Which iw what we want.
 				//
 				"%%0%dd",
 
@@ -293,10 +326,10 @@ cycle_writer::conclusion cycle_writer::next_file()
 		m_last_file_name += index;
 	}
 
-	// Increment the total number of files
+	// Increment the total number of files.
 	m_file_count_total++;
 
-	// Increment the current index
+	// Increment the current index.
 	m_file_index++;
 
 	// Return that we've recommended a new file.
