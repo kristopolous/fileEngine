@@ -1,5 +1,5 @@
 CXXFLAGS=-g3 -Wall
-main: cycle_writer.o main.o
-	g++ $(CXXFLAGS) main.o cycle_writer.o   -o main
+test: cycle_writer.o test.o
+	g++ $(CXXFLAGS) test.o cycle_writer.o   -o test
 clean:
-	rm *.o main
+	rm *.o test

@@ -48,12 +48,6 @@ bool cycle_writer::setup(string base_file_name, int rollover_mb, int duration_se
 //
 cycle_writer::conclusion cycle_writer::consider(long byte_count) 
 {
-	//
-	// This is for any routine which restricts 
-	// execution after an initial consider()
-	//
-	m_first_consider = true;
-
 	m_byte_count += byte_count;
 
 	if(m_duration_seconds > 0) 
@@ -115,6 +109,19 @@ cycle_writer::conclusion cycle_writer::consider(long byte_count)
 			//
 			return next_file();
 		}
+	}
+
+	//
+	// This is for any routine which restricts 
+	// execution after an initial consider()
+	//
+	if(m_first_consider == false) 
+	{
+		m_first_consider = true;
+
+		// We need to generate an initial file name
+		// but still continue our logic.
+		next_file();
 	}
 
 	// 
