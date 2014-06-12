@@ -6,115 +6,132 @@
 
 using namespace std;
 
-class CycleWriter {
+class cycle_writer {
 public:
-  // The conclusion is what
-  // consider() tells you to do
-  // after you tell it how many 
-  // more bytes to consider
-  enum Conclusion {
-    // Continue to use the same file
-    SAMEFILE,
+	//
+	// The conclusion is what consider() tells you to do
+	// after you tell it how many more bytes to consider.
+	// 
+	// We don't deal directly with file pointers here to
+	// keep the concerns separated.  This engine only advises
+	// a course of action.
+	//
+	enum conclusion {
 
-    // Close the current file handle
-    // and use the one in getCurrentFileName()
-    NEWFILE,
+		// Continue to use the same file
+		SAMEFILE,
 
-    // It's the end of the capture,
-    // close the file handle and exit.
-    DOQUIT
-  };
+		// Close the current file handle
+		// and use the one in get_current_file_name()
+		NEWFILE,
 
-  // These are the variables that may be set
-  // to specify how the engine will work.
-  // 
-  // They are public and you can set them
-  // directly, or use the handy setup
-  // function below to force yourself
-  // to set them all
-  //
-  // values <= 0 mean don't use them.
-  
-  // The base file name to write to
-  string m_baseFileName; // = ""
+		// It's the end of the capture,
+		// close the file handle and exit.
+		DOQUIT
+	};
 
-  // Number of bytes before rolling over
-  int m_rolloverMB; // = 0
+	cycle_writer();
+	~cycle_writer() {};
 
-  // Time in seconds between captures
-  int m_durationSeconds; // = 0
+	//
+	// Setup sets all the parameters of the 
+	// engine in one go so you don't miss anything.
+	//
+	// Also, if the engine has already started 
+	// (via a call to consider()), then this will
+	// be locked down and return false.
+	//
+	bool setup(string base_file_name, int rollover_mb, int duration_seconds, int file_limit, bool do_cycle);
+	
+	//
+	// Consider byte_count bytes at the current time
+	// and tell us whether 
+	//
+	//  * a new file should be written,
+	//  * we should use the same file, or 
+	//  * we should quit.
+	//
+	// If we should use a new file, or should quit,
+	// then m_last_reason will tell us why consider
+	// thought so, and in the case of a new file,
+	// get_current_file_name() will tell us the new
+	// capture file name to use.
+	// 
+	cycle_writer::conclusion consider(long byte_count);
 
-  // Total number of allowed captures
-  int m_fileLimit; // = 0
+	//
+	// The yields the current file name 
+	// based on the input parameters and 
+	// what has been past into consider.
+	//
+	string get_current_file_name();
 
-  // Whether to cycle the names at all
-  bool m_doCycle; // = false
-
-  // The setup allows you to set everything
-  // in one go so you don't miss anything.
-  //
-  // Also, if the engine has already started 
-  // (via a call to consider()), then this will
-  // be locked down and return false.
-  bool setup(
-    string baseFileName,
-    int rolloverMB,
-    int durationSeconds,
-    int fileLimit,
-    bool doCycle
-  );
-
-  CycleWriter();
-  ~CycleWriter() {};
-  
-  // Consider byteCount bytes at the current time
-  // and tell us whether a new file should be written,
-  // we should use the same file, or we should quit.
-  //
-  // If we should use a new file, or should quit,
-  // then m_lastReason will tell us why consider
-  // thought so, and in the case of a new file,
-  // getCurrentFileName() will tell us the new
-  // capture file name to use.
-  CycleWriter::Conclusion consider(long byteCount);
-
-  string getCurrentFileName();
-
-  // Last reason for a new file
-  string m_lastReason;
+	// Last reason for a new file
+	string m_last_reason;
 
 private:
-  // This will yield a new file if
-  // needed or conclude that we need 
-  // to exit.
-  CycleWriter::Conclusion nextFile();
+	//
+	// This will yield a new file if
+	// needed or conclude that we need 
+	// to exit.
+	//
+	cycle_writer::conclusion next_file();
 
-  // Total number of bytes written
-  int m_byteCount;
+	//
+	// These are the variables that are set
+	// to specify how the engine will work.
+	// 
+	// Use the setup() function to set them up.
+	//
+	// values <= 0 mean don't use the feature.
+	// 
+	
+	// The base file name to write to
+	string m_base_file_name; // = ""
 
-  // Last time of a capture
-  time_t m_lastTime;
+	// Number of bytes before rolling over
+	int m_rollover_mb; // = 0
 
-  // Total number of files written
-  int m_fileCountTotal;
+	// Time in seconds between captures
+	int m_duration_seconds; // = 0
 
-  // Current index
-  int m_fileIndex;
+	// Total number of allowed captures
+	int m_file_limit; // = 0
 
-  // This is the 0-left padded format
-  // for creating file names. Since
-  // we don't know what's what at first
-  // we just leave this hanging.
-  char m_limitFormat[6];
+	// Whether to cycle the names at all
+	bool m_do_cycle; // = false
 
-  // The last file name that
-  // was created (mostly for debugging)
-  string m_lastFileName;
+private:
+	// Total number of bytes written
+	int m_byte_count;
 
-  // This is toggled to true the
-  // first time consider is run ...
-  // it will lock the setup() from 
-  // being further run
-  bool m_bFirstConsider;
+	// Last time of a capture
+	time_t m_last_time;
+
+	// Total number of files written
+	int m_file_count_total;
+
+	// Current index
+	int m_file_index;
+
+	//
+	// This is the 0-left padded format
+	// for creating file names. Since
+	// we don't know what's what at first
+	// we just leave this hanging.
+	//
+	char m_limit_format[6];
+
+	// The last file name that
+	// was created (mostly for debugging)
+	string m_last_file_name;
+
+	//
+	// This is toggled to true the
+	// first time consider is run ...
+	// it will lock the setup() from 
+	// being further run
+	//
+	bool m_first_consider;
 };
 
